@@ -12,36 +12,28 @@ let kSpaceLabelsKey = "SpaceLabels"
 
 class MovableWindow: NSPanel {
     override var canBecomeKey: Bool { return true }
-    override var canBecomeMain: Bool { return false }
+    override var canBecomeMain: Bool { return true }
 
     override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
         super.init(contentRect: contentRect, styleMask: style, backing: backingStoreType, defer: flag)
         self.isMovableByWindowBackground = true
         self.isFloatingPanel = true
-        self.becomesKeyOnlyIfNeeded = true
         self.hidesOnDeactivate = false
     }
 }
 
-class ClickableLabel: NSTextField {
-    var onClick: (() -> Void)?
-
-    override func mouseDown(with event: NSEvent) {
-        onClick?()
-    }
-}
-
-class AppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate, NSWindowDelegate {
     var window: NSWindow!
-    var label: ClickableLabel!
+    var label: NSTextField!
+    var editButton: NSButton!
     var editField: NSTextField!
-    var resetButton: NSButton!
+    var clearButton: NSButton!
     var containerView: NSView!
     var currentSpaceID: Int = 0
 
-    // Colors
-    let unlabeledColor = NSColor(red: 0.7, green: 0.2, blue: 0.2, alpha: 0.85)  // Tasteful red
-    let labeledColor = NSColor(red: 0.2, green: 0.6, blue: 0.3, alpha: 0.85)    // Green
+    // Accessible colors (gray/blue instead of red/green)
+    let unlabeledColor = NSColor(white: 0.25, alpha: 0.9)  // Neutral dark gray
+    let labeledColor = NSColor(red: 0.2, green: 0.45, blue: 0.75, alpha: 0.9)  // Blue
 
     func getSpaceID() -> Int {
         let connection = _CGSDefaultConnection()
@@ -78,16 +70,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
         let customLabel = getLabel(spaceID: currentSpaceID)
         let isLabeled = customLabel != nil
 
-        label.stringValue = customLabel ?? String(currentSpaceID)
+        // Show "Space #" for unlabeled, custom name for labeled
+        label.stringValue = customLabel ?? "Space \(currentSpaceID)"
+
+        // Update background color
         window.backgroundColor = isLabeled ? labeledColor : unlabeledColor
-        resetButton.isHidden = !isLabeled
+
+        // Show clear button only when labeled
+        clearButton.isHidden = !isLabeled
     }
 
-    func showEditField() {
+    @objc func editClicked() {
         label.isHidden = true
-        resetButton.isHidden = true
+        editButton.isHidden = true
+        clearButton.isHidden = true
         editField.isHidden = false
-        editField.stringValue = label.stringValue
+
+        // Pre-fill with current custom label or empty for new
+        let customLabel = getLabel(spaceID: currentSpaceID)
+        editField.stringValue = customLabel ?? ""
+
+        // Activate app fully for dictation support
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
         window.makeFirstResponder(editField)
         editField.selectText(nil)
     }
@@ -95,18 +100,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
     func hideEditField() {
         editField.isHidden = true
         label.isHidden = false
+        editButton.isHidden = false
         updateLabel()
     }
 
     func saveCurrentEdit() {
-        let newName = editField.stringValue.trimmingCharacters(in: .whitespaces)
-        if !newName.isEmpty && newName != String(currentSpaceID) {
+        let newName = editField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !newName.isEmpty {
             saveLabel(spaceID: currentSpaceID, name: newName)
+            flashConfirmation()
         }
         hideEditField()
     }
 
-    @objc func resetClicked() {
+    func flashConfirmation() {
+        // Brief flash to confirm save
+        let originalColor = window.backgroundColor
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.15
+            window.animator().backgroundColor = NSColor(red: 0.3, green: 0.7, blue: 0.4, alpha: 0.9)
+        }, completionHandler: {
+            NSAnimationContext.runAnimationGroup({ context in
+                context.duration = 0.3
+                self.window.animator().backgroundColor = originalColor
+            })
+        })
+    }
+
+    @objc func clearClicked() {
         removeLabel(spaceID: currentSpaceID)
         updateLabel()
     }
@@ -131,8 +152,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Create a borderless, movable window
         window = MovableWindow(
-            contentRect: NSRect(x: 100, y: 100, width: 180, height: 50),
-            styleMask: [.borderless, .nonactivatingPanel],
+            contentRect: NSRect(x: 100, y: 100, width: 220, height: 44),
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
@@ -144,42 +165,57 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
         window.animationBehavior = .none
         window.ignoresMouseEvents = false
+        window.delegate = self
+
+        // Rounded corners
+        window.contentView?.wantsLayer = true
+        window.contentView?.layer?.cornerRadius = 8
+        window.contentView?.layer?.masksToBounds = true
 
         // Container view
-        containerView = NSView(frame: NSRect(x: 0, y: 0, width: 180, height: 50))
+        containerView = NSView(frame: NSRect(x: 0, y: 0, width: 220, height: 44))
         window.contentView?.addSubview(containerView)
 
-        // Create the clickable label
-        label = ClickableLabel(labelWithString: "")
-        label.font = NSFont.systemFont(ofSize: 18, weight: .bold)
+        // Create the label (not clickable - just displays text)
+        label = NSTextField(labelWithString: "")
+        label.font = NSFont.systemFont(ofSize: 16, weight: .semibold)
         label.textColor = .white
         label.alignment = .center
-        label.frame = NSRect(x: 10, y: 10, width: 140, height: 30)
-        label.onClick = { [weak self] in
-            self?.showEditField()
-        }
+        label.frame = NSRect(x: 30, y: 7, width: 160, height: 30)
         containerView.addSubview(label)
 
+        // Create small edit button (pencil icon)
+        editButton = NSButton(frame: NSRect(x: 4, y: 10, width: 24, height: 24))
+        editButton.bezelStyle = .inline
+        editButton.isBordered = false
+        editButton.image = NSImage(systemSymbolName: "pencil", accessibilityDescription: "Edit")
+        editButton.contentTintColor = .white
+        editButton.target = self
+        editButton.action = #selector(editClicked)
+        editButton.toolTip = "Rename this space"
+        containerView.addSubview(editButton)
+
         // Create the edit field (hidden by default)
-        editField = NSTextField(frame: NSRect(x: 10, y: 10, width: 140, height: 30))
-        editField.font = NSFont.systemFont(ofSize: 18, weight: .bold)
+        editField = NSTextField(frame: NSRect(x: 8, y: 7, width: 204, height: 30))
+        editField.font = NSFont.systemFont(ofSize: 16, weight: .semibold)
         editField.alignment = .center
+        editField.placeholderString = "Enter name... (Enter=save, Esc=cancel)"
         editField.isHidden = true
         editField.delegate = self
-        editField.focusRingType = .none
+        editField.bezelStyle = .roundedBezel
         containerView.addSubview(editField)
 
-        // Create reset button
-        resetButton = NSButton(frame: NSRect(x: 155, y: 15, width: 20, height: 20))
-        resetButton.title = "×"
-        resetButton.bezelStyle = .inline
-        resetButton.isBordered = false
-        resetButton.font = NSFont.systemFont(ofSize: 16, weight: .bold)
-        resetButton.contentTintColor = .white
-        resetButton.target = self
-        resetButton.action = #selector(resetClicked)
-        resetButton.isHidden = true
-        containerView.addSubview(resetButton)
+        // Create clear button
+        clearButton = NSButton(frame: NSRect(x: 190, y: 10, width: 24, height: 24))
+        clearButton.bezelStyle = .inline
+        clearButton.isBordered = false
+        clearButton.image = NSImage(systemSymbolName: "xmark.circle", accessibilityDescription: "Clear")
+        clearButton.contentTintColor = .white
+        clearButton.target = self
+        clearButton.action = #selector(clearClicked)
+        clearButton.toolTip = "Clear custom name"
+        clearButton.isHidden = true
+        containerView.addSubview(clearButton)
 
         // Update label with current space
         updateLabel()
@@ -205,11 +241,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTextFieldDelegate {
         appMenu.addItem(quitItem)
         appMenuItem.submenu = appMenu
 
-        app.mainMenu = mainMenu
+        NSApp.mainMenu = mainMenu
     }
 
     @objc func spaceDidChange(_ notification: Notification) {
-        hideEditField()
+        if !editField.isHidden {
+            hideEditField()
+        }
         updateLabel()
     }
 

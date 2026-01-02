@@ -1,15 +1,17 @@
 APP = DesktopLabel
 SRC = main.swift
+BUNDLE = $(APP).app
+EXECUTABLE = $(BUNDLE)/Contents/MacOS/$(APP)
 
-all: $(APP)
+all: $(BUNDLE)
 
-$(APP): $(SRC)
-	swiftc -o $(APP) $(SRC) -framework Cocoa
+$(BUNDLE): $(SRC) $(BUNDLE)/Contents/Info.plist
+	swiftc -o $(EXECUTABLE) $(SRC) -framework Cocoa
 
-run: $(APP)
-	./$(APP)
+run: $(BUNDLE)
+	open $(BUNDLE)
 
 clean:
-	rm -f $(APP)
+	rm -f $(EXECUTABLE)
 
 .PHONY: all run clean

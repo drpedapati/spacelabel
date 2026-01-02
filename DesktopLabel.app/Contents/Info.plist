@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>DesktopLabel</string>
+    <key>CFBundleDisplayName</key>
+    <string>Desktop Label</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.local.DesktopLabel</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>DesktopLabel</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>12.0</string>
+    <key>LSUIElement</key>
+    <false/>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Desktop Label needs speech recognition for dictation input.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Desktop Label needs microphone access for dictation input.</string>
+</dict>
+</plist>
