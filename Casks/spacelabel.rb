@@ -1,6 +1,6 @@
 cask "spacelabel" do
   version "0.1.0"
-  sha256 "7de1a09a277f0cb9ddad05e0a7e1cbdd7a98f05fc205f7096f987f0bf6b8660c"
+  sha256 "0a1aee0cc83b6892ef459f0429f7c29a89068c01266d2e1e947479a16e9e678c"
 
   url "https://github.com/drpedapati/spacelabel/releases/download/v#{version}/SpaceLabel.app.zip"
   name "SpaceLabel"
