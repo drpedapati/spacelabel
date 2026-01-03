@@ -22,8 +22,7 @@ A minimal, elegant floating overlay that lets you name your macOS Spaces. Stop g
 
 ```bash
 brew tap drpedapati/spacelabel
-brew install spacelabel
-ln -sf $(brew --prefix)/opt/spacelabel/SpaceLabel.app /Applications/
+brew install --cask spacelabel
 ```
 
 ### Manual

@@ -1,5 +1,6 @@
 # Build artifacts
 SpaceLabel.app/Contents/MacOS/SpaceLabel
+SpaceLabel.app.zip
 
 # macOS
 .DS_Store
