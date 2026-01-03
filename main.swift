@@ -1,4 +1,5 @@
 // SpaceLabel - A floating overlay for naming macOS Spaces
+// Copyright (c) 2025 Ernie Pedapati
 // https://github.com/drpedapati/spacelabel
 // MIT License
 

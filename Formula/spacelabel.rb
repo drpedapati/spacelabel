@@ -1,5 +1,5 @@
 class Spacelabel < Formula
-  desc "Floating overlay for naming macOS Spaces"
+  desc "Know where you are. Name your macOS Spaces."
   homepage "https://github.com/drpedapati/spacelabel"
   url "https://github.com/drpedapati/spacelabel/archive/refs/tags/v0.1.0.tar.gz"
   sha256 "PLACEHOLDER_SHA256"

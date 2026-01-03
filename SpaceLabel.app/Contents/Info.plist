@@ -23,7 +23,7 @@
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright 2025. MIT License.</string>
+    <string>Copyright © 2025 Ernie Pedapati. MIT License.</string>
     <key>NSSpeechRecognitionUsageDescription</key>
     <string>SpaceLabel uses speech recognition for dictation input.</string>
     <key>NSMicrophoneUsageDescription</key>

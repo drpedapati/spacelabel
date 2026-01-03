@@ -1,6 +1,8 @@
 # SpaceLabel
 
-A lightweight floating overlay for naming macOS Spaces (virtual desktops).
+**Know where you are. Name your spaces.**
+
+A minimal, elegant floating overlay that lets you name your macOS Spaces. Stop guessing which desktop you're on—give each space a purpose and see it at a glance.
 
 ![macOS 12.0+](https://img.shields.io/badge/macOS-12.0%2B-blue)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
@@ -62,6 +64,14 @@ make install  # Copies to /Applications
 - Uses private macOS APIs for space detection (not App Store compatible)
 - Space IDs may change after system restarts
 
+## Why SpaceLabel?
+
+macOS Spaces are powerful but anonymous. You switch between them constantly, yet there's no easy way to know which one you're on or what it's for. SpaceLabel fixes that with a simple, unobtrusive overlay that stays with you across all your desktops.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+Made by [Ernie Pedapati](https://github.com/drpedapati)

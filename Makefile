@@ -19,6 +19,6 @@ uninstall:
 	rm -rf /Applications/$(BUNDLE)
 
 clean:
-	rm -rf $(BUNDLE)
+	rm -f $(EXECUTABLE)
 
 .PHONY: all run install uninstall clean
