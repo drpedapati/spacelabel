@@ -1,6 +1,5 @@
 # Build artifacts
-DesktopLabel
-DesktopLabel.app/Contents/MacOS/DesktopLabel
+SpaceLabel.app/Contents/MacOS/SpaceLabel
 
 # macOS
 .DS_Store
