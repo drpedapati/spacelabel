@@ -8,6 +8,7 @@ all: $(BUNDLE)
 $(BUNDLE): $(SRC) $(BUNDLE)/Contents/Info.plist
 	@mkdir -p $(BUNDLE)/Contents/MacOS
 	swiftc -O -o $(EXECUTABLE) $(SRC) -framework Cocoa
+	codesign --force --deep --sign - $(BUNDLE)
 
 run: $(BUNDLE)
 	open $(BUNDLE)
